@@ -57,8 +57,12 @@ export function gitRevParse(cwd = process.cwd()): GitRevParseResult {
   return { prefix, gitCommonDir };
 }
 
-export function getRoot(): string {
+export function getRoot(config: JPCMConfig): string | undefined {
   debug('getRoot');
+
+  if (!config.useGitRoot) {
+    return;
+  }
 
   const cwd = process.cwd();
 
@@ -76,11 +80,12 @@ export function getRoot(): string {
   return path.resolve(cwd, gitCommonDir);
 }
 
-export async function getBranchName(gitRoot: string): Promise<string> {
+export async function getBranchName(gitRoot?: string): Promise<string> {
   debug('gitBranchName');
 
   return new Promise((resolve, reject) => {
-    cp.exec(`git --git-dir=${gitRoot} symbolic-ref --short HEAD`, { encoding: 'utf-8' }, (err, stdout, stderr) => {
+    const gitDirOption = gitRoot ? `--git-dir=${gitRoot}` : '';
+    cp.exec(`git ${gitDirOption} symbolic-ref --short HEAD`, { encoding: 'utf-8' }, (err, stdout, stderr) => {
       if (err) {
         return reject(err);
       }

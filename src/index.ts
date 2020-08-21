@@ -9,9 +9,9 @@ import { error, log } from './log';
   log('start');
 
   try {
-    const gitRoot = git.getRoot();
-    const branch = await git.getBranchName(gitRoot);
     const config = await loadConfig();
+    const gitRoot = git.getRoot(config);
+    const branch = await git.getBranchName(gitRoot);
     const ticket = git.getJiraTicket(branch, config);
 
     log(`The JIRA ticket ID is: ${ticket}`);
